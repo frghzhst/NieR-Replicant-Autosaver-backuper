@@ -14,6 +14,10 @@ function innit {
 
     $ttpath = Get-Content $lfile 
     $tpath = $ttpath.Split('=')[1]
+    if (-not (Test-Path -Path $tpath)) {
+        Write-Host specified path in config does not exist, now creating
+        New-Item -Path $tpath -ItemType Directory -Force
+    }
 }
 
 Write-Host please ensure that this script is in the [drive]:\user\[username]\Doouments\My Games\Nier replicant\Steam\[some number] directory `(if not, press control c to exit from this program now and put it in the directory`)
