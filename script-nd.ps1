@@ -1,4 +1,4 @@
-﻿$script:lfile = "config-ndp.txt"
+﻿$script:lfile = "config-nd.txt"
 $script:flag1 = (Test-Path $script:lfile) ? $true : $false
 
 function innit {
