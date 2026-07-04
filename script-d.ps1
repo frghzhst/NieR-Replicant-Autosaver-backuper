@@ -8,7 +8,7 @@ function innit {
     if (-not $s1) { #file does not exists
         New-Item $lfile -ItemType File | Out-Null
         echo "target directory(save to)=$PSScriptRoot`n" >> $lfile
-        echo "detection delay time=1200`n" >> $lfile
+        echo "detection delay time(in seconds)=1200`n" >> $lfile
         #
     }
     $script:tpath = ""
