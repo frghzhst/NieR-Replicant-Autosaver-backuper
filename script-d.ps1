@@ -9,11 +9,13 @@ function innit {
         New-Item $lfile -ItemType File | Out-Null
         echo "target directory(save to)=$PSScriptRoot" >> $lfile
         echo "detection delay time(in seconds)=1200" >> $lfile
+        echo "create log file(1 for yes, 0 for no)=0"
         #
     }
     $script:tpath = ""
     $script:dtime = 1200
-    
+    $script:logfile = 0
+    $script:logfilepath = "log.txt"
     $config = @{}
 
     Get-Content $lfile | ForEach-Object {
@@ -24,9 +26,26 @@ function innit {
     $script:tpath = $config["target directory(save to)"]
     if (-not (Test-Path -Path $script:tpath)) {
         Write-Host specified path in config does not exist, now creating
-        New-Item -Path $script:tpath -ItemType Directory -Force
+        try {
+            New-Item -Path $script:tpath -ItemType Directory -Force
+        } catch {
+            Write-Host Error creating log file
+            Write-Host "Error: $($_.Exception.Message)"
+        }
     }
     $script:dtime = [int]$config["detection delay time(in seconds)"]
+    $script:logfile = [int]$config["create log file(1 for yes, 0 for no)"]
+    if ($script:logfile == 1) {
+        if (-not (Test-Path -Path $script:logfilepath)) {
+            try {
+                New-Item -Path $script:logfilepath -ItemType File -Force
+            } catch {
+                Write-Host Error creating log file
+                Write-Host "Error: $($_.Exception.Message)"
+            }
+        }
+
+    }
 }
 
 function save {
@@ -34,12 +53,16 @@ function save {
     $filename = "GAMEDATA_$date"
     $savefile = Join-Path $script:tpath -ChildPath $filename
     $source = Join-Path $PSScriptRoot "GAMEDATA"
+    $dfl = (Get-Date).ToString("yyyy/MM/dd  HH:mm:ss")
     try {
         Copy-Item -Path $source -Destination $savefile -ErrorAction Stop
         Write-Host backed up at $date, at $savefile
     } catch {
         Write-Host Failed to back u
         Write-Host "Error: $($_.Exception.Message)"
+    }
+    if ($script:logfile == 1) {
+        Add-Content -Path $script:logfilepath -Value "[$dfl] backed up, at $savefile`n"
     }
 }
 
