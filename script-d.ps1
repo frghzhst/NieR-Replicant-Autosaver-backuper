@@ -7,8 +7,8 @@ function innit {
     )
     if (-not $s1) { #file does not exists
         New-Item $lfile -ItemType File | Out-Null
-        echo "target directory(save to)=$PSScriptRoot`n" >> $lfile
-        echo "detection delay time(in seconds)=1200`n" >> $lfile
+        echo "target directory(save to)=$PSScriptRoot" >> $lfile
+        echo "detection delay time(in seconds)=1200" >> $lfile
         #
     }
     $script:tpath = ""
@@ -21,25 +21,32 @@ function innit {
         $config[$key.Trim()] = $value.Trim()
     }
 
-    $tpath = $config["target directory(save to)"]
-    if (-not (Test-Path -Path $tpath)) {
+    $script:tpath = $config["target directory(save to)"]
+    if (-not (Test-Path -Path $script:tpath)) {
         Write-Host specified path in config does not exist, now creating
-        New-Item -Path $tpath -ItemType Directory -Force
+        New-Item -Path $script:tpath -ItemType Directory -Force
     }
-    $dtime = [int]$config["detection delay time"]
+    $script:dtime = [int]$config["detection delay time(in seconds)"]
 }
 
 function save {
-    $date = (Get-Date).ToString("yyyy-MM-dd_HH-mm-ss")
+    $date = (Get-Date).ToString("yyyy-MM-dd_HH;mm;ss")
     $filename = "GAMEDATA_$date"
-    $savefile = Join-Path $tpath -ChildPath $filename
-    Copy-Item -Path GAMEDATA -Destination $savefile
+    $savefile = Join-Path $script:tpath -ChildPath $filename
+    $source = Join-Path $PSScriptRoot "GAMEDATA"
+    try {
+        Copy-Item -Path $source -Destination $savefile -ErrorAction Stop
+        Write-Host backed up at $date, at $savefile
+    } catch {
+        Write-Host Failed to back u
+        Write-Host "Error: $($_.Exception.Message)"
+    }
 }
 
 function main {
     $pa_run = $null -ne (Get-Process -Name "NieR Replicant ver.1.22474487139" -ErrorAction SilentlyContinue)
 	while (1) {
-        $pr_run = Get-Process -Name "NieR Replicant ver.1.22474487139" -ErrorAction SilentlyContinue
+        $pr_run = $null -ne (Get-Process -Name "NieR Replicant ver.1.22474487139" -ErrorAction SilentlyContinue)
         if ($pr_run -and -not $pa_run) { #is running now but not 20 minutes ago
             save
         }
