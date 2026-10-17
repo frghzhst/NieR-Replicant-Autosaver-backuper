@@ -84,7 +84,7 @@ function main {
     
 }
 
-Write-Host please ensure that this script is in the [drive]:\user\[username]\Doouments\My Games\Nier replicant\Steam\[some number] directory `(if not, press control c to exit from this program now and put it in the directory`)
+Write-Host please ensure that this script is in the [drive]:\user\[username]\Documents\My Games\Nier replicant\Steam\[some number] directory `(if not, press control c to exit from this program now and put it in the directory`)
 pause
 innit $flag1
 main
